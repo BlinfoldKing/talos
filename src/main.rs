@@ -1,5 +1,8 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
+use rocket::config::{Config, Environment};
+use std::env;
+
 #[macro_use]
 extern crate rocket;
 
@@ -9,5 +12,11 @@ fn index() -> &'static str {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![index]).launch();
+    let port = env::var("PORT").unwrap_or("8000".to_owned());
+    let config = Config::build(Environment::Staging)
+        .port(port.parse().unwrap())
+        .finalize()
+        .unwrap();
+
+    rocket::custom(config).mount("/", routes![index]).launch();
 }
