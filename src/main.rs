@@ -1,10 +1,13 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 use rocket::config::{Config, Environment};
-use std::env;
 
 #[macro_use]
 extern crate rocket;
+extern crate diesel;
+
+mod config;
+mod database;
 
 #[get("/")]
 fn index() -> &'static str {
@@ -12,9 +15,10 @@ fn index() -> &'static str {
 }
 
 fn main() {
-    let port = env::var("PORT").unwrap_or("8000".to_owned());
+    config::init();
+    database::establish_connection(config::database_url());
     let config = Config::build(Environment::Staging)
-        .port(port.parse().unwrap())
+        .port(config::port().parse().unwrap())
         .finalize()
         .unwrap();
 

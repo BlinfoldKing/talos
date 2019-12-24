@@ -8,3 +8,5 @@ edition = "2018"
 
 [dependencies]
 rocket = "0.4.2"
+dotenv = "0.15.0"
+diesel = { version = "1.4.2", features = ["postgres"] }
