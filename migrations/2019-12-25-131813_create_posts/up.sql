@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS "posts" (
     "title" VARCHAR(30) NOT NULL,
     "content" TEXT NOT NULL,
     "banner" VARCHAR(255) NOT NULL,
-    "author_id" UUID NOT NULL,
     "is_draft" BOOLEAN NOT NULL,
     "created_at" TIMESTAMP NOT NULL,
     "updated_at" TIMESTAMP NOT NULL,

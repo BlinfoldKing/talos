@@ -16,15 +16,11 @@ extern crate serde_json;
 mod config;
 mod database;
 mod domain;
+mod graphql;
 mod handler;
-mod schema;
 
+use crate::graphql::{Mutations, Query};
 use handler::graphql::*;
-
-use juniper::{
-    tests::{model::Database, schema::Query},
-    EmptyMutation,
-};
 
 fn main() {
     config::init();
@@ -41,11 +37,7 @@ fn main() {
 
     rocket::custom(config)
         .attach(database::DbConn::fairing())
-        .manage(Database::new())
-        .manage(handler::graphql::Schema::new(
-            Query,
-            EmptyMutation::<Database>::new(),
-        ))
+        .manage(handler::graphql::Schema::new(Query, Mutations))
         .mount("/ping", routes![handler::ping::ping])
         .mount(
             "/auth",

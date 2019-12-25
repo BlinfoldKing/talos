@@ -5,7 +5,6 @@ table! {
         title -> Varchar,
         content -> Text,
         banner -> Varchar,
-        author_id -> Uuid,
         is_draft -> Bool,
         created_at -> Timestamp,
         updated_at -> Timestamp,

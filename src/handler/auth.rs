@@ -29,7 +29,7 @@ pub struct AuthResponse {
 pub fn register(db: DbConn, form: Json<RegisterRequest>) -> Result<APIResponse, APIResponse> {
     let result = User::new(db, &form.username, &form.password);
     let new_user = result?;
-    let id = format!("{}", new_user.id.hyphenated());
+    let id = format!("{}", new_user.id.to_hyphenated());
     let token = new_user.generate_token();
     Ok(APIResponse::ok().data(json!(&AuthResponse {
         id,
@@ -45,7 +45,7 @@ pub fn login(db: DbConn, form: Json<LoginRequest>) -> Result<APIResponse, APIRes
         None => Err(APIResponse::error().not_found()),
         Some(user) => {
             if user.verify_password(&form.password) {
-                let id = format!("{}", user.id.hyphenated());
+                let id = format!("{}", user.id.to_hyphenated());
                 let token = user.generate_token();
 
                 Ok(APIResponse::ok().data(json!(&AuthResponse {

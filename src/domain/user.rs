@@ -1,7 +1,7 @@
 extern crate diesel;
 
+use crate::database::schema::users;
 use crate::database::DbConn;
-use crate::schema::users;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use diesel::result::Error as DBError;
@@ -37,7 +37,7 @@ impl User {
     }
 
     pub fn get<'a>(db: DbConn, _username: &'a str) -> Result<Option<User>, DBError> {
-        use crate::schema::users::dsl::*;
+        use crate::database::schema::users::dsl::*;
         users
             .filter(username.eq(_username))
             .first::<User>(&*db)
