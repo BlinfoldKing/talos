@@ -1,5 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-use rocket::config::{Config, ConfigError, Environment, Value};
+use rocket::config::{Config, Environment, Value};
 use std::collections::HashMap;
 
 #[macro_use]
@@ -19,6 +19,13 @@ mod domain;
 mod handler;
 mod schema;
 
+use handler::graphql::*;
+
+use juniper::{
+    tests::{model::Database, schema::Query},
+    EmptyMutation,
+};
+
 fn main() {
     config::init();
     let mut database_config = HashMap::new();
@@ -34,10 +41,19 @@ fn main() {
 
     rocket::custom(config)
         .attach(database::DbConn::fairing())
+        .manage(Database::new())
+        .manage(handler::graphql::Schema::new(
+            Query,
+            EmptyMutation::<Database>::new(),
+        ))
         .mount("/ping", routes![handler::ping::ping])
         .mount(
             "/auth",
             routes![handler::auth::register, handler::auth::login],
+        )
+        .mount(
+            "/",
+            rocket::routes![post_graphql_handler, get_graphql_handler, graphiql],
         )
         .launch();
 }

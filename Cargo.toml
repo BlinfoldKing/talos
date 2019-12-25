@@ -16,8 +16,14 @@ bcrypt = "0.6.1"
 uuid = { version = "0.6", features = ["v4"] }
 frank_jwt = "3.1.2"
 serde_json = "1.0.44"
+juniper = "0.14.2"
+juniper_rocket = "0.5.2"
 
 [dependencies.rocket_contrib]
 version = "0.4.2"
 default-features = false
 features = ["json", "diesel_postgres_pool", "uuid"]
+
+[dev-dependencies.juniper]
+version = "0.14.2"
+features = ["expose-test-schema", "serde_json"]

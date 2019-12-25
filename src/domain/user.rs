@@ -6,7 +6,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use diesel::result::Error as DBError;
 use diesel::RunQueryDsl;
-use frank_jwt::{decode, encode, Algorithm};
+use frank_jwt::{encode, Algorithm};
 use uuid::Uuid;
 
 #[derive(Queryable)]
