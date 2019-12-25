@@ -1,6 +1,6 @@
 table! {
     users (id) {
-        id -> Integer,
+        id -> Uuid,
         username -> Varchar,
         password_hash -> Text,
     }
