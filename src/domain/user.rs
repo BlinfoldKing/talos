@@ -4,6 +4,7 @@ use crate::database::DbConn;
 use crate::schema::users;
 use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
+use diesel::result::Error as DBError;
 use diesel::RunQueryDsl;
 use frank_jwt::{decode, encode, Algorithm};
 use uuid::Uuid;
@@ -24,7 +25,7 @@ pub struct NewUser<'a> {
 }
 
 impl User {
-    pub fn new<'a>(db: DbConn, username: &'a str, password: &'a str) -> User {
+    pub fn new<'a>(db: DbConn, username: &'a str, password: &'a str) -> Result<User, DBError> {
         let password_hash = &hash(password, DEFAULT_COST).expect("failed to encrypt password");
         diesel::insert_into(users::table)
             .values(&NewUser {
@@ -33,19 +34,14 @@ impl User {
                 password_hash,
             })
             .get_result::<User>(&*db)
-            .expect("error when saving")
     }
 
-    pub fn get<'a>(db: DbConn, _username: &'a str) -> Option<User> {
+    pub fn get<'a>(db: DbConn, _username: &'a str) -> Result<Option<User>, DBError> {
         use crate::schema::users::dsl::*;
-        let user = users
+        users
             .filter(username.eq(_username))
             .first::<User>(&*db)
-            .optional();
-        if let Ok(Some(u)) = user {
-            return Some(u);
-        }
-        None
+            .optional()
     }
 
     pub fn verify_password(&self, password: &str) -> bool {
