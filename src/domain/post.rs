@@ -24,38 +24,53 @@ pub struct Post {
 
 #[derive(Insertable)]
 #[table_name = "posts"]
-pub struct NewPost<'a> {
-    pub id: Uuid,
+pub struct CreatePostForm<'a> {
     pub slug: &'a str,
     pub title: &'a str,
     pub content: &'a str,
     pub banner: &'a str,
     pub is_draft: bool,
-    pub created_at: NaiveDateTime,
-    pub updated_at: NaiveDateTime,
+}
+
+#[derive(AsChangeset)]
+#[table_name = "posts"]
+pub struct UpdatePostForm<'a> {
+    pub slug: Option<&'a str>,
+    pub title: Option<&'a str>,
+    pub content: Option<&'a str>,
+    pub banner: Option<&'a str>,
+    pub is_draft: Option<bool>,
 }
 
 impl Post {
-    pub fn new<'a>(db: &DbConn, title: &'a str) -> Result<Post, DBError> {
-        let word_list: Vec<&str> = title.split(' ').collect();
-        let slug: &str = &word_list.join("-");
+    pub fn new<'a>(db: &DbConn, new_post: CreatePostForm) -> Result<Post, DBError> {
+        use crate::database::schema::posts::dsl::*;
         let now = chrono::Local::now().naive_local();
-        diesel::insert_into(posts::table)
-            .values(&NewPost {
-                id: uuid::Uuid::new_v4(),
-                title,
-                slug,
-                content: "Another New Story",
-                banner: "",
-                is_draft: true,
-                created_at: now,
-                updated_at: now,
-            })
+        diesel::insert_into(posts)
+            .values((
+                id.eq(uuid::Uuid::new_v4()),
+                &new_post,
+                created_at.eq(now),
+                updated_at.eq(now),
+            ))
             .get_result::<Post>(&**db)
     }
 
     pub fn find_by_id(db: &DbConn, _id: Uuid) -> Result<Option<Post>, DBError> {
         use crate::database::schema::posts::dsl::*;
         posts.find(_id).first::<Post>(&**db).optional()
+    }
+
+    pub fn get_all(db: &DbConn) -> Result<Option<Vec<Post>>, DBError> {
+        use crate::database::schema::posts::dsl::*;
+        posts.load::<Post>(&**db).optional()
+    }
+
+    pub fn update_by_id(db: &DbConn, _id: Uuid, update: UpdatePostForm) -> Result<Post, DBError> {
+        use crate::database::schema::posts::dsl::*;
+        let now = chrono::Local::now().naive_local();
+        diesel::update(posts.find(_id))
+            .set((&update, updated_at.eq(now)))
+            .get_result::<Post>(&**db)
     }
 }
