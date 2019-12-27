@@ -43,9 +43,6 @@ fn main() {
             "/auth",
             routes![handler::auth::register, handler::auth::login],
         )
-        .mount(
-            "/",
-            rocket::routes![post_graphql_handler, get_graphql_handler, graphiql],
-        )
+        .mount("/graphql", rocket::routes![post_graphql_handler, graphiql])
         .launch();
 }
