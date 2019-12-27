@@ -6,7 +6,7 @@ use bcrypt::{hash, verify, DEFAULT_COST};
 use diesel::prelude::*;
 use diesel::result::Error as DBError;
 use diesel::RunQueryDsl;
-use frank_jwt::{encode, Algorithm};
+use frank_jwt::{decode, encode, Algorithm, ValidationOptions};
 use uuid::Uuid;
 
 #[derive(Queryable)]
@@ -44,6 +44,11 @@ impl User {
             .optional()
     }
 
+    pub fn find_by_id(db: &DbConn, _id: Uuid) -> Result<Option<User>, DBError> {
+        use crate::database::schema::users::dsl::*;
+        users.find(_id).first::<User>(&**db).optional()
+    }
+
     pub fn verify_password(&self, password: &str) -> bool {
         verify(password, &self.password_hash).unwrap()
     }
@@ -57,5 +62,20 @@ impl User {
         let secret = "secret123";
         let jwt = encode(header, &secret, &payload, Algorithm::HS256);
         jwt.expect("token error")
+    }
+
+    pub fn decode_token(token: String) -> Option<String> {
+        let (_, payload) = decode(
+            &token,
+            &"secret123",
+            Algorithm::HS256,
+            &ValidationOptions::dangerous(),
+        )
+        .unwrap();
+
+        match payload["id"].as_str() {
+            Some(id) => Some(id.to_owned()),
+            None => None,
+        }
     }
 }

@@ -1,7 +1,6 @@
-use super::{Mutations, Query};
-use crate::database::DbConn;
+use super::{GQLContext, Mutations, Query};
 use crate::domain::post::{CreatePostForm, Post, UpdatePostForm};
-use juniper::FieldResult;
+use juniper::{graphql_value, FieldError, FieldResult};
 
 #[derive(juniper::GraphQLInputObject)]
 struct CreatePostInput {
@@ -22,31 +21,38 @@ struct UpdatePostInput {
 }
 
 #[juniper::object(
-    Context = DbConn,
+    Context = GQLContext,
     Scalar = juniper::DefaultScalarValue,
 )]
 impl Query {
     #[graphql(arguments(id(description = "id of the post")))]
-    fn post(database: &DbConn, id: uuid::Uuid) -> Option<Post> {
-        let result = Post::find_by_id(database, id);
+    fn post(ctx: &GQLContext, id: uuid::Uuid) -> Option<Post> {
+        let result = Post::find_by_id(&ctx.database, id);
         match result {
             Ok(opt) => opt,
             Err(_) => None,
         }
     }
 
-    fn GetAllPost(database: &DbConn) -> Option<Vec<Post>> {
-        let result = Post::get_all(database).unwrap();
+    fn GetAllPost(ctx: &GQLContext) -> Option<Vec<Post>> {
+        let result = Post::get_all(&ctx.database).unwrap();
         result
     }
 }
 
 #[juniper::object(
-    Context = DbConn,
+    Context = GQLContext,
     Scalar = juniper::DefaultScalarValue,
 )]
 impl Mutations {
-    fn CreatePost(database: &DbConn, create_post_input: CreatePostInput) -> FieldResult<Post> {
+    fn CreatePost(ctx: &GQLContext, create_post_input: CreatePostInput) -> FieldResult<Post> {
+        if ctx.user.is_none() {
+            return Err(FieldError::new(
+                "Token Needed",
+                graphql_value!({"unauthorised": "no token existed"}),
+            ));
+        };
+
         let title = &create_post_input.title;
         let slug = match create_post_input.slug {
             Some(s) => s,
@@ -59,7 +65,7 @@ impl Mutations {
         let banner = create_post_input.banner.as_deref();
         let is_draft = create_post_input.is_draft;
         Ok(Post::new(
-            database,
+            &ctx.database,
             CreatePostForm {
                 title,
                 is_draft,
@@ -78,17 +84,24 @@ impl Mutations {
     }
 
     fn UpdatePostById(
-        database: &DbConn,
+        ctx: &GQLContext,
         id: uuid::Uuid,
         update_post_input: UpdatePostInput,
     ) -> FieldResult<Post> {
+        if ctx.user.is_none() {
+            return Err(FieldError::new(
+                "Token Needed",
+                graphql_value!({"unauthorised": "no token existed"}),
+            ));
+        };
+
         let slug = update_post_input.slug.as_deref();
         let title = update_post_input.title.as_deref();
         let content = update_post_input.content.as_deref();
         let banner = update_post_input.banner.as_deref();
         let is_draft = update_post_input.is_draft;
         Ok(Post::update_by_id(
-            database,
+            &ctx.database,
             id,
             UpdatePostForm {
                 slug,

@@ -18,6 +18,7 @@ mod database;
 mod domain;
 mod graphql;
 mod handler;
+mod lib;
 
 use crate::graphql::{Mutations, Query};
 use handler::graphql::*;
