@@ -15,9 +15,13 @@ table! {
 table! {
     users (id) {
         id -> Uuid,
+        email -> Varchar,
         username -> Varchar,
         password_hash -> Text,
     }
 }
 
-allow_tables_to_appear_in_same_query!(posts, users,);
+allow_tables_to_appear_in_same_query!(
+    posts,
+    users,
+);

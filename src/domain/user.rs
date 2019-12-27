@@ -13,6 +13,7 @@ use uuid::Uuid;
 #[derive(Queryable)]
 pub struct User {
     pub id: Uuid,
+    pub email: String,
     pub username: String,
     pub password_hash: String,
 }
@@ -21,26 +22,33 @@ pub struct User {
 #[table_name = "users"]
 pub struct NewUser<'a> {
     pub id: uuid::Uuid,
+    pub email: &'a str,
     pub username: &'a str,
     pub password_hash: &'a str,
 }
 
 impl User {
-    pub fn new<'a>(db: DbConn, username: &'a str, password: &'a str) -> Result<User, DBError> {
+    pub fn new<'a>(
+        db: DbConn,
+        email: &'a str,
+        username: &'a str,
+        password: &'a str,
+    ) -> Result<User, DBError> {
         let password_hash = &hash(password, DEFAULT_COST).expect("failed to encrypt password");
         diesel::insert_into(users::table)
             .values(&NewUser {
                 id: uuid::Uuid::new_v4(),
                 username,
+                email,
                 password_hash,
             })
             .get_result::<User>(&*db)
     }
 
-    pub fn get<'a>(db: DbConn, _username: &'a str) -> Result<Option<User>, DBError> {
+    pub fn get<'a>(db: DbConn, _email: &'a str) -> Result<Option<User>, DBError> {
         use crate::database::schema::users::dsl::*;
         users
-            .filter(username.eq(_username))
+            .filter(email.eq(_email))
             .first::<User>(&*db)
             .optional()
     }
