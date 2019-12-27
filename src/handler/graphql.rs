@@ -2,10 +2,8 @@ use rocket::{response::content, State};
 
 use crate::database::DbConn;
 use crate::domain::user::User;
-use crate::graphql::{GQLContext, Mutations, Query};
+use crate::graphql::{GQLContext, Schema};
 use juniper::RootNode;
-
-pub type Schema = RootNode<'static, Query, Mutations>;
 
 #[rocket::post("/", data = "<request>")]
 pub fn post_graphql_handler(
