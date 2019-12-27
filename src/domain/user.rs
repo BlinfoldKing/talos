@@ -1,5 +1,6 @@
 extern crate diesel;
 
+use crate::config;
 use crate::database::schema::users;
 use crate::database::DbConn;
 use bcrypt::{hash, verify, DEFAULT_COST};
@@ -59,7 +60,7 @@ impl User {
         });
 
         let header = json!({});
-        let secret = "secret123";
+        let secret = config::secret();
         let jwt = encode(header, &secret, &payload, Algorithm::HS256);
         jwt.expect("token error")
     }
@@ -67,7 +68,7 @@ impl User {
     pub fn decode_token(token: String) -> Option<String> {
         let (_, payload) = decode(
             &token,
-            &"secret123",
+            &config::secret(),
             Algorithm::HS256,
             &ValidationOptions::dangerous(),
         )

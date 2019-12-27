@@ -5,3 +5,7 @@ pub fn port() -> String {
 pub fn database_url() -> String {
     "postgres://postgres:secret@localhost/talos_db".to_owned()
 }
+
+pub fn secret() -> String {
+    "secret".to_owned()
+}
