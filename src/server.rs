@@ -6,6 +6,8 @@ use crate::handler::graphql::*;
 use crate::handler::ping::*;
 
 use rocket::config::{Config, Environment, Value};
+use rocket::fairing::AdHoc;
+use rocket::http::hyper::header;
 use std::collections::HashMap;
 
 pub struct Server {
@@ -31,6 +33,9 @@ impl Server {
     pub fn init(self) -> rocket::Rocket {
         rocket::custom(self.config)
             .attach(DbConn::fairing())
+            .attach(AdHoc::on_response("Enable CORS", |req, res| {
+                res.set_header(header::AccessControlAllowOrigin::Any);
+            }))
             .manage(Schema::new(Query, Mutations))
             .mount("/ping", routes![ping])
             .mount("/auth", routes![register, login])
