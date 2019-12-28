@@ -74,6 +74,16 @@ impl Post {
             None => None,
         }
     }
+
+    pub fn preview(&self) -> String {
+        let res: Vec<&str> = self.content.split(' ').collect();
+        let limit = if self.content.len() < 50 {
+            self.content.len()
+        } else {
+            100
+        };
+        format!("{}...", res[..limit].join(" ").to_owned())
+    }
 }
 
 #[juniper::object(
