@@ -24,6 +24,62 @@ struct UpdatePostInput {
     Context = GQLContext,
     Scalar = juniper::DefaultScalarValue,
 )]
+impl Post {
+    pub fn id(&self) -> uuid::Uuid {
+        self.id
+    }
+
+    pub fn slug(&self) -> String {
+        self.slug.clone()
+    }
+
+    pub fn title(&self) -> String {
+        self.title.clone()
+    }
+
+    pub fn content(&self) -> String {
+        self.content.clone()
+    }
+
+    pub fn banner(&self) -> String {
+        self.banner.clone()
+    }
+
+    pub fn is_draft(&self) -> bool {
+        self.is_draft
+    }
+
+    pub fn created_at(&self) -> chrono::NaiveDateTime {
+        self.created_at
+    }
+
+    pub fn updated_at(&self) -> chrono::NaiveDateTime {
+        self.updated_at
+    }
+
+    pub fn deleted_at(&self) -> Option<chrono::NaiveDateTime> {
+        self.deleted_at
+    }
+
+    pub fn next(&self, ctx: &GQLContext) -> Option<Post> {
+        match self.next_id {
+            Some(id) => Post::find_by_id(&ctx.database, id).unwrap_or(None),
+            None => None,
+        }
+    }
+
+    pub fn prev(&self, ctx: &GQLContext) -> Option<Post> {
+        match self.prev_id {
+            Some(id) => Post::find_by_id(&ctx.database, id).unwrap(),
+            None => None,
+        }
+    }
+}
+
+#[juniper::object(
+    Context = GQLContext,
+    Scalar = juniper::DefaultScalarValue,
+)]
 impl Query {
     #[graphql(arguments(id(description = "id of the post")))]
     fn post(ctx: &GQLContext, id: uuid::Uuid) -> Option<Post> {
@@ -42,8 +98,8 @@ impl Query {
         }
     }
 
-    fn GetAllPosts(ctx: &GQLContext) -> Option<Vec<Post>> {
-        let result = Post::get_all(&ctx.database).unwrap();
+    fn GetAllPosts(ctx: &GQLContext, limit: i32, offset: i32) -> Option<Vec<Post>> {
+        let result = Post::get_all(&ctx.database, limit as i64, offset as i64).unwrap();
         result
     }
 }
@@ -62,13 +118,20 @@ impl Mutations {
         };
 
         let title = &create_post_input.title;
-        let slug = match create_post_input.slug {
+        let mut slug = match create_post_input.slug {
             Some(s) => s,
             None => {
                 let word_list: Vec<&str> = title.split(' ').collect();
-                word_list.join("-")
+                format!("{}_{}", nanoid::generate(21), word_list.join("-"))
             }
         };
+
+        if let Ok(_) = Post::find_by_slug(&ctx.database, slug.clone()) {
+            let word_list: Vec<&str> = title.split(' ').collect();
+            slug = word_list.join("-");
+            slug = format!("{}_{}", nanoid::generate(21), slug);
+        };
+
         let content = create_post_input.content.as_deref();
         let banner = create_post_input.banner.as_deref();
         let is_draft = create_post_input.is_draft;

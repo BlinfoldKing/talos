@@ -6,6 +6,8 @@ table! {
         content -> Text,
         banner -> Varchar,
         is_draft -> Bool,
+        prev_id -> Nullable<Uuid>,
+        next_id -> Nullable<Uuid>,
         created_at -> Timestamp,
         updated_at -> Timestamp,
         deleted_at -> Nullable<Timestamp>,
