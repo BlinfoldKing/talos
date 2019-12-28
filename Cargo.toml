@@ -18,6 +18,7 @@ frank_jwt = "3.1.2"
 serde_json = "1.0.44"
 juniper_rocket = "0.5.2"
 chrono = { version = "0.4", features = ["serde"] }
+rocket_cors = "0.5.1"
 
 [dependencies.rocket_contrib]
 version = "0.4.2"

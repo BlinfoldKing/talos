@@ -34,7 +34,15 @@ impl Query {
         }
     }
 
-    fn GetAllPost(ctx: &GQLContext) -> Option<Vec<Post>> {
+    fn FindPostBySlug(ctx: &GQLContext, slug: String) -> Option<Post> {
+        let result = Post::find_by_slug(&ctx.database, slug);
+        match result {
+            Ok(opt) => opt,
+            Err(_) => None,
+        }
+    }
+
+    fn GetAllPosts(ctx: &GQLContext) -> Option<Vec<Post>> {
         let result = Post::get_all(&ctx.database).unwrap();
         result
     }

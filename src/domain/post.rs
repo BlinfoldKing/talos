@@ -61,6 +61,11 @@ impl Post {
         posts.find(_id).first::<Post>(&**db).optional()
     }
 
+    pub fn find_by_slug(db: &DbConn, _slug: String) -> Result<Option<Post>, DBError> {
+        use crate::database::schema::posts::dsl::*;
+        posts.filter(slug.eq(_slug)).first::<Post>(&**db).optional()
+    }
+
     pub fn get_all(db: &DbConn) -> Result<Option<Vec<Post>>, DBError> {
         use crate::database::schema::posts::dsl::*;
         posts.load::<Post>(&**db).optional()
