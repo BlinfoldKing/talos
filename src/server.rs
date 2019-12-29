@@ -21,6 +21,7 @@ use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 fn make_cors() -> Cors {
     let port: &str = &config::port();
     let allowed_origins = AllowedOrigins::some_exact(&[
+        "https://talos-blinfoldking.herokuapp.com",
         "ego.blinfoldking.now.sh",
         "ego.now.sh",
         "www.blinfoldking.dev",
