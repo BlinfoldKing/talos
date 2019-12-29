@@ -5,7 +5,7 @@ use std::env;
 mod default;
 
 pub fn init() {
-    dotenv::dotenv().expect("unable to find .env");
+    dotenv::dotenv();
 }
 
 pub fn port() -> String {
