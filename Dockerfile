@@ -1,7 +1,3 @@
-# ------------------------------------------------------------------------------
-# Cargo Build Stage
-# ------------------------------------------------------------------------------
-
 FROM rust:latest as cargo-build
 
 RUN apt-get update
@@ -25,10 +21,6 @@ RUN rm -f target/x86_64-unknown-linux-musl/release/deps/myapp*
 COPY . .
 
 RUN RUSTFLAGS=-Clinker=musl-gcc cargo build --release --target=x86_64-unknown-linux-musl
-
-# ------------------------------------------------------------------------------
-# Final Stage
-# ------------------------------------------------------------------------------
 
 FROM alpine:latest
 
