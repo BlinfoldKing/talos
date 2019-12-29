@@ -21,6 +21,10 @@ use rocket_cors::{AllowedHeaders, AllowedOrigins, Cors, CorsOptions};
 fn make_cors() -> Cors {
     let port: &str = &config::port();
     let allowed_origins = AllowedOrigins::some_exact(&[
+        "ego.blinfoldking.now.sh",
+        "ego.now.sh",
+        "www.blinfoldking.dev",
+        "ego.blinfoldking.dev",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://0.0.0.0:3000",
