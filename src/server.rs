@@ -22,10 +22,8 @@ fn make_cors() -> Cors {
     let port: &str = &config::port();
     let allowed_origins = AllowedOrigins::some_exact(&[
         "https://talos-blinfoldking.herokuapp.com",
-        "ego.blinfoldking.now.sh",
-        "ego.now.sh",
-        "www.blinfoldking.dev",
-        "ego.blinfoldking.dev",
+        "https://ego.blinfoldking.now.sh",
+        "https://ego.now.sh",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://0.0.0.0:3000",
