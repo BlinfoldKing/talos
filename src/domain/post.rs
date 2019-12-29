@@ -116,4 +116,20 @@ impl Post {
             .set((&update, updated_at.eq(now)))
             .get_result::<Post>(&**db)
     }
+
+    pub fn search_by_title(
+        db: &DbConn,
+        query: String,
+        _limit: i64,
+        _offset: i64,
+    ) -> Result<Option<Vec<Post>>, DBError> {
+        use crate::database::schema::posts::dsl::*;
+        posts
+            .filter(title.like(format!("%{}%", query)))
+            .order_by(created_at.desc())
+            .limit(_limit)
+            .offset(_offset)
+            .load::<Post>(&**db)
+            .optional()
+    }
 }

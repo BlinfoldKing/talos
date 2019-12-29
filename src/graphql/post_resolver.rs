@@ -108,6 +108,19 @@ impl Query {
         }
     }
 
+    fn SearchPostByTitle(
+        ctx: &GQLContext,
+        query: String,
+        limit: i32,
+        offset: i32,
+    ) -> Option<Vec<Post>> {
+        let result = Post::search_by_title(&ctx.database, query, limit as i64, offset as i64);
+        match result {
+            Ok(opt) => opt,
+            Err(_) => None,
+        }
+    }
+
     fn GetAllPosts(ctx: &GQLContext, limit: i32, offset: i32) -> Option<Vec<Post>> {
         let result = Post::get_all(&ctx.database, limit as i64, offset as i64).unwrap();
         result
