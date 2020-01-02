@@ -78,7 +78,7 @@ impl Post {
     pub fn preview(&self) -> String {
         let res: Vec<&str> = self.content.split(' ').collect();
         let limit = if res.len() < 100 { res.len() } else { 100 };
-        format!("{}...", res[..limit].join(" ").to_owned())
+        format!("{}...", res[..limit - 1].join(" ").to_owned())
     }
 }
 
